@@ -1,0 +1,26 @@
+{
+  "name": "Agara Tamil Learning",
+  "short_name": "Agara",
+  "description": "Agara: The Ultimate Tamil Learning Companion for Students",
+  "categories": ["education", "kids", "languages"],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#f97316",
+  "background_color": "#fef08a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any",
+      "purpose": "maskable"
+    }
+  ]
+}

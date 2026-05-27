@@ -1,0 +1,7 @@
+{
+  "name": "Agara: Tamil Learning",
+  "description": "Agara is a gamified educational application for Tamil students of all grades. Features grammar practice, sentence building, project tracking, and phonetics guidance aligned with ITA standards.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
