@@ -8,9 +8,12 @@
     "start": "node server.ts",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "android:sync": "npm run build && npx cap sync",
+    "android:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/core": "^8.4.0",
     "@google/genai": "^1.40.0",
     "@types/canvas-confetti": "^1.9.0",
     "@types/express": "^5.0.6",
@@ -24,6 +27,8 @@
     "vite": "^6.2.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
     "@eslint/js": "^10.0.1",
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
     "@types/node": "^22.14.0",
