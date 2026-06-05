@@ -144,7 +144,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
 
-    app.get('*', async (req, res, next) => {
+    app.get('*all', async (req, res, next) => {
       const url = req.originalUrl;
       try {
         const fs = await import('fs');
