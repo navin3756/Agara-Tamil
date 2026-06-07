@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const [currentWeek, setCurrentWeek] = useState<number>(22);
   const [syllabus, setSyllabus] = useState(getWeeklySyllabus());
   
-  const { user, signIn, signOut } = useAuth();
+  const { user, signIn, signOut, authAvailable } = useAuth();
 
   const toggleTask = (weekId: number, taskId: string) => {
     setSyllabus(prev => prev.map(week => 
@@ -101,13 +101,17 @@ const App: React.FC = () => {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : authAvailable ? (
                 <button 
                   onClick={signIn}
                   className="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-gray-800 transition shadow hover:-translate-y-0.5"
                 >
                   Sign In
                 </button>
+              ) : (
+                <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-bold text-orange-700">
+                  Local mode
+                </span>
               )}
             </div>
           </div>

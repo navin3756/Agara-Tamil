@@ -18,57 +18,38 @@ export enum OperationType {
 }
 
 interface FirestoreErrorInfo {
-  error: string;
+  errorCode?: string;
+  errorMessage: string;
   operationType: OperationType;
   path: string | null;
-  authInfo: {
-    userId?: string | null;
-    email?: string | null;
-    emailVerified?: boolean | null;
-    isAnonymous?: boolean | null;
-    tenantId?: string | null;
-    providerInfo?: {
-      providerId?: string | null;
-      email?: string | null;
-    }[];
-  }
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
-        providerId: provider.providerId,
-        email: provider.email,
-      })) || []
-    },
+    errorCode: typeof error === 'object' && error !== null && 'code' in error ? String((error as { code?: unknown }).code) : undefined,
+    errorMessage: error instanceof Error ? error.message : String(error),
     operationType,
-    path
-  }
+    path,
+  };
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  throw new Error(errInfo.errorCode ? `Firestore ${operationType} failed (${errInfo.errorCode})` : `Firestore ${operationType} failed`);
 }
 
 // Authentication Helpers
 export const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (e) {
-        console.error("Auth Error", e);
-    }
+  const provider = new GoogleAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error('Auth Error', e);
+  }
 };
 
 export const logout = async () => {
-    try {
-        await signOut(auth);
-    } catch(e) {
-        console.error("Logout Error", e);
-    }
+  try {
+    await signOut(auth);
+  } catch (e) {
+    console.error('Logout Error', e);
+  }
 };

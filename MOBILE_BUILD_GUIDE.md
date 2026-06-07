@@ -102,10 +102,7 @@ Google Play requires submissions in the **Android App Bundle (.aab)** format.
 ## 🌟 Beautiful Automated Asset Pipeline
 We have fully automated the icon generation workflow. If you ever update the logo vector again inside `/icon.svg` or `/public/icon.svg`, simply execute:
 ```bash
-# Render high definition SVGs into pristine PNG files
-npx tsx render-assets.js
-
-# Compile those PNGs into 135+ sizes across Android, iOS Appiconsets, & PWA
-npx @capacitor/assets generate
+# Render high definition SVGs into Android, iOS, and PWA icon assets
+npm run assets:generate
 ```
-All mipmaps, drawable splash-themes, Apple icon profiles, and PWA assets will immediately synchronize perfectly.
+All mipmaps, drawable splash themes, Apple icon profiles, and PWA assets will immediately synchronize perfectly.

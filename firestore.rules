@@ -10,15 +10,18 @@ service cloud.firestore {
     function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
+    function isValidDate(value) { return value is string && value.matches('^\\d{4}-\\d{2}-\\d{2}$'); }
 
     function isValidUser(data) {
-      return data.keys().hasAll(['userId', 'streak', 'learnedWords']) &&
+      return data.keys().hasOnly(['userId', 'streak', 'learnedWords', 'lastPlayedDate']) &&
+             data.keys().hasAll(['userId', 'streak', 'learnedWords']) &&
              data.userId == request.auth.uid &&
-             data.streak is number &&
+             data.streak is int &&
+             data.streak >= 0 &&
+             data.streak <= 3660 &&
              data.learnedWords is list &&
-             data.learnedWords.size() <= 1000 &&
-             (data.keys().hasAll(['lastPlayedDate']) ? data.lastPlayedDate is string : true) &&
-             data.size() <= 4;
+             data.learnedWords.size() <= 500 &&
+             (data.keys().hasAll(['lastPlayedDate']) ? isValidDate(data.lastPlayedDate) : true);
     }
 
     match /users/{userId} {
@@ -32,9 +35,7 @@ service cloud.firestore {
                        request.auth.uid == userId &&
                        isValidUser(incoming()) &&
                        incoming().userId == existing().userId &&
-                       (
-                         incoming().diff(existing()).affectedKeys().hasOnly(['streak', 'lastPlayedDate', 'learnedWords'])
-                       );
+                       incoming().diff(existing()).affectedKeys().hasOnly(['streak', 'lastPlayedDate', 'learnedWords']);
     }
   }
 }

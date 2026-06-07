@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth, signInWithGoogle, logout } from '../services/firebase';
+import { Capacitor } from '@capacitor/core';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  authAvailable: boolean;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -12,6 +14,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  authAvailable: !Capacitor.isNativePlatform(),
   signIn: signInWithGoogle,
   signOut: logout
 });
@@ -31,7 +34,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn: signInWithGoogle, signOut: logout }}>
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      authAvailable: !Capacitor.isNativePlatform(),
+      signIn: signInWithGoogle,
+      signOut: logout
+    }}>
       {children}
     </AuthContext.Provider>
   );

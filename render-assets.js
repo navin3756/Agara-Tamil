@@ -3,10 +3,14 @@ import path from 'path';
 import sharp from 'sharp';
 
 const ASSETS_DIR = './assets';
+const WEB_ICONS_DIR = './public/icons';
 
 // Create assets directory if it doesn't exist
 if (!fs.existsSync(ASSETS_DIR)) {
   fs.mkdirSync(ASSETS_DIR, { recursive: true });
+}
+if (!fs.existsSync(WEB_ICONS_DIR)) {
+  fs.mkdirSync(WEB_ICONS_DIR, { recursive: true });
 }
 
 // 1. Definition for Background (Full flat square with premium gradient)
@@ -232,6 +236,14 @@ async function main() {
     await sharp(Buffer.from(splashSvg))
       .png()
       .toFile(path.join(ASSETS_DIR, 'splash.png'));
+
+    for (const size of [48, 72, 96, 128, 192, 256, 512]) {
+      console.log(`Rendering public/icons/icon-${size}.webp...`);
+      await sharp(Buffer.from(fullIconSquareSvg))
+        .resize(size, size)
+        .webp({ quality: 92 })
+        .toFile(path.join(WEB_ICONS_DIR, `icon-${size}.webp`));
+    }
 
     console.log('Successfully rendered all core assets!');
   } catch (error) {
