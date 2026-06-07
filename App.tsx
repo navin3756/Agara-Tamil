@@ -4,7 +4,7 @@ import LandingPage from './components/LandingPage';
 import ViralArticle from './components/ViralArticle';
 import DailyReminder from './components/DailyReminder';
 import { getWeeklySyllabus } from './constants';
-import { useAuth } from './components/AuthProvider';
+import { useAuth } from './components/authContext';
 
 const App: React.FC = () => {
   // State to manage view: 'landing', 'app', or 'article'

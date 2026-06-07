@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+def agaraKeystorePath = System.getenv('AGARA_ANDROID_KEYSTORE_PATH')
+def agaraKeystorePassword = System.getenv('AGARA_ANDROID_KEYSTORE_PASSWORD')
+def agaraKeyAlias = System.getenv('AGARA_ANDROID_KEY_ALIAS')
+def agaraKeyPassword = System.getenv('AGARA_ANDROID_KEY_PASSWORD')
+def hasAgaraReleaseSigning = agaraKeystorePath && agaraKeystorePassword && agaraKeyAlias && agaraKeyPassword
+
 android {
     namespace = "com.abcdschoolofbollywood.agara"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,8 +22,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (hasAgaraReleaseSigning) {
+                storeFile file(agaraKeystorePath)
+                storePassword agaraKeystorePassword
+                keyAlias agaraKeyAlias
+                keyPassword agaraKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasAgaraReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agara-tamil-v2';
+const CACHE_NAME = 'agara-tamil-v3';
 const urlsToCache = [
   '/',
   '/index.html',

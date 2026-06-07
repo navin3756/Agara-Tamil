@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { DICTATION_WORDS } from '../constants';
 import confetti from 'canvas-confetti';
 import { generateSimpleStory, generateTamilSpeech } from '../services/geminiService';
-import { useAuth } from './AuthProvider';
+import { useAuth } from './authContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../services/firebase';
 

@@ -19,7 +19,7 @@ Agara ships as one static Vite React application with Capacitor mobile shells. T
 ## Android
 
 - Android builds no longer require `AGARA_API_BASE_URL` or `VITE_API_BASE_URL`.
-- Before Play Store release, configure Android release signing with a real keystore, bump `versionCode`/`versionName`, and decide whether to enable minification/proguard.
+- Android release signing is wired through environment variables: `AGARA_ANDROID_KEYSTORE_PATH`, `AGARA_ANDROID_KEYSTORE_PASSWORD`, `AGARA_ANDROID_KEY_ALIAS`, and `AGARA_ANDROID_KEY_PASSWORD`. Before Play Store release, create the upload keystore, set those variables in the build environment, bump `versionCode`/`versionName`, and decide whether to enable minification/proguard.
 
 ## Security
 
@@ -35,5 +35,5 @@ Agara ships as one static Vite React application with Capacitor mobile shells. T
 3. Run `npm audit --audit-level=high`.
 4. Run `npm run build:web`.
 5. Deploy to Vercel.
-6. For Android production, run `npm run android:build` after release signing/versioning is configured.
+6. For Android production, set the release signing environment variables and run `npm run android:build`.
 7. Push the release branch to GitHub.

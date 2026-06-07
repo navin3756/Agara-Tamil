@@ -1,0 +1,18 @@
+# Native/mobile build artifacts are not needed for Vercel web deployments.
+android/.gradle
+android/build
+android/**/build
+android/**/.cxx
+ios/**/build
+
+# Local dependencies and generated archives.
+node_modules
+*.aab
+*.apk
+*.ipa
+
+# Local tooling artifacts.
+.vercel
+*.log
+android-qa-screen.png
+android-qa-ui.xml

@@ -77,7 +77,8 @@ export const generateSimpleStory = async (topic: string): Promise<{ tamil: strin
   return storySeeds[hashText(cleanedTopic || 'agara') % storySeeds.length];
 };
 
-export const generateTamilSpeech = async (): Promise<string | null> => {
+export const generateTamilSpeech = async (text?: string): Promise<string | null> => {
+  void text;
   // No backend is required. Components fall back to the device/browser Tamil speech engine.
   return null;
 };

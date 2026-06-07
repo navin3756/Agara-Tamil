@@ -71,6 +71,16 @@ Google Play requires submissions in the **Android App Bundle (.aab)** format.
 3. Under **Key store path**, click **Create new...**
 4. Set a path to save the keystore file (e.g., `my-release-key.jks`), define password phrases, set an alias (e.g., `upload-key`), and fill in certificate organization attributes. Save this key in a secure place.
 
+#### 🔐 Optional CLI Signing Variables
+If you build from the command line, set these environment variables before running `npm run android:build`:
+```bash
+AGARA_ANDROID_KEYSTORE_PATH=/secure/path/agarga-upload-key.jks
+AGARA_ANDROID_KEYSTORE_PASSWORD=your-keystore-password
+AGARA_ANDROID_KEY_ALIAS=upload-key
+AGARA_ANDROID_KEY_PASSWORD=your-key-password
+```
+Keep the keystore and passwords out of Git.
+
 #### 📦 Build the Dual-release Signed Bundle
 1. In the same Generate Signed Bundle window, select your newly created keystore.
 2. Enter the passwords and the alias.

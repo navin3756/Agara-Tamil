@@ -4,6 +4,15 @@ import sharp from 'sharp';
 
 const ASSETS_DIR = './assets';
 const WEB_ICONS_DIR = './public/icons';
+const ANDROID_RES_DIR = './android/app/src/main/res';
+const ANDROID_MIPMAPS = {
+  ldpi: 36,
+  mdpi: 48,
+  hdpi: 72,
+  xhdpi: 96,
+  xxhdpi: 144,
+  xxxhdpi: 192,
+};
 
 // Create assets directory if it doesn't exist
 if (!fs.existsSync(ASSETS_DIR)) {
@@ -11,6 +20,23 @@ if (!fs.existsSync(ASSETS_DIR)) {
 }
 if (!fs.existsSync(WEB_ICONS_DIR)) {
   fs.mkdirSync(WEB_ICONS_DIR, { recursive: true });
+}
+for (const density of Object.keys(ANDROID_MIPMAPS)) {
+  fs.mkdirSync(path.join(ANDROID_RES_DIR, 'mipmap-' + density), { recursive: true });
+}
+
+function collectSplashResources(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const results = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectSplashResources(fullPath));
+    } else if (entry.isFile() && entry.name === 'splash.png') {
+      results.push(fullPath);
+    }
+  }
+  return results;
 }
 
 // 1. Definition for Background (Full flat square with premium gradient)
@@ -233,9 +259,18 @@ async function main() {
 
     // 4. Render splash.png
     console.log('Rendering assets/splash.png...');
-    await sharp(Buffer.from(splashSvg))
+    const splashPng = await sharp(Buffer.from(splashSvg))
       .png()
+      .toBuffer();
+    await sharp(splashPng)
       .toFile(path.join(ASSETS_DIR, 'splash.png'));
+
+    for (const splashPath of collectSplashResources(ANDROID_RES_DIR)) {
+      console.log('Rendering Android splash resource ' + splashPath + '...');
+      await sharp(splashPng)
+        .png()
+        .toFile(splashPath);
+    }
 
     for (const size of [48, 72, 96, 128, 192, 256, 512]) {
       console.log(`Rendering public/icons/icon-${size}.webp...`);
@@ -243,6 +278,27 @@ async function main() {
         .resize(size, size)
         .webp({ quality: 92 })
         .toFile(path.join(WEB_ICONS_DIR, `icon-${size}.webp`));
+    }
+
+    for (const [density, size] of Object.entries(ANDROID_MIPMAPS)) {
+      const mipmapDir = path.join(ANDROID_RES_DIR, `mipmap-${density}`);
+      console.log(`Rendering Android launcher PNGs for ${density}...`);
+      await sharp(Buffer.from(fullIconSquareSvg))
+        .resize(size, size)
+        .png()
+        .toFile(path.join(mipmapDir, 'ic_launcher.png'));
+      await sharp(Buffer.from(fullIconSquareSvg))
+        .resize(size, size)
+        .png()
+        .toFile(path.join(mipmapDir, 'ic_launcher_round.png'));
+      await sharp(Buffer.from(bgSvg))
+        .resize(size, size)
+        .png()
+        .toFile(path.join(mipmapDir, 'ic_launcher_background.png'));
+      await sharp(Buffer.from(fgSvg))
+        .resize(size, size)
+        .png()
+        .toFile(path.join(mipmapDir, 'ic_launcher_foreground.png'));
     }
 
     console.log('Successfully rendered all core assets!');
