@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "assets:generate": "node render-assets.js",
+    "play:assets": "node scripts/generate-play-store-assets.mjs",
     "android:sync": "node scripts/android.mjs sync",
     "android:dev": "node scripts/android.mjs dev",
     "android:build": "node scripts/android.mjs build",

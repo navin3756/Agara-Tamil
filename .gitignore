@@ -27,3 +27,6 @@ dist-ssr
 .vercel
 android-qa-screen.png
 android-qa-ui.xml
+agara-play-ui.xml
+release/google-play/*.aab
+release/google-play/*.apk

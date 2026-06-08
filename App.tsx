@@ -8,13 +8,42 @@ import { getWeeklySyllabus } from './constants';
 import { getKindergartenSyllabus } from './data/kindergartenHandbook';
 import { useAuth } from './components/authContext';
 
+const getInitialRoute = () => {
+  if (typeof window === 'undefined') {
+    return {
+      view: 'landing' as const,
+      grade: '4',
+      week: 22,
+      tab: undefined as string | undefined,
+    };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const grade = params.get('grade')?.toUpperCase() || '4';
+  const parsedWeek = Number(params.get('week'));
+  const week = Number.isInteger(parsedWeek) && parsedWeek >= 1 && parsedWeek <= 32
+    ? parsedWeek
+    : grade === 'KG'
+      ? 1
+      : 22;
+
+  return {
+    view: params.get('view') === 'app' ? 'app' as const : 'landing' as const,
+    grade,
+    week,
+    tab: params.get('tab') || undefined,
+  };
+};
+
 const App: React.FC = () => {
+  const initialRoute = getInitialRoute();
+
   // State to manage view: 'landing', 'app', or 'article'
-  const [view, setView] = useState<'landing' | 'app' | 'article'>('landing');
+  const [view, setView] = useState<'landing' | 'app' | 'article'>(initialRoute.view);
   
   // App State
-  const [gradeLevel, setGradeLevel] = useState<string>('4');
-  const [currentWeek, setCurrentWeek] = useState<number>(22);
+  const [gradeLevel, setGradeLevel] = useState<string>(initialRoute.grade);
+  const [currentWeek, setCurrentWeek] = useState<number>(initialRoute.week);
   const [syllabus, setSyllabus] = useState(getWeeklySyllabus());
   const [kindergartenSyllabus, setKindergartenSyllabus] = useState(getKindergartenSyllabus());
   
@@ -141,12 +170,14 @@ const App: React.FC = () => {
             currentWeek={currentWeek}
             syllabus={kindergartenSyllabus}
             onToggle={toggleKindergartenTask}
+            initialTab={initialRoute.tab}
           />
         ) : (
           <LessonHub 
             currentWeek={currentWeek} 
             syllabus={syllabus} 
             onToggle={toggleTask} 
+            initialTab={initialRoute.tab}
           />
         )}
       </main>

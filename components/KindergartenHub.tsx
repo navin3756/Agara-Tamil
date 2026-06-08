@@ -5,12 +5,16 @@ interface KindergartenHubProps {
   currentWeek: number;
   syllabus: KindergartenWeek[];
   onToggle: (weekId: number, taskId: string) => void;
+  initialTab?: string;
 }
 
 type KgTab = 'overview' | 'letters' | 'homework' | 'speaking' | 'projects';
+const KG_TABS: KgTab[] = ['overview', 'letters', 'homework', 'speaking', 'projects'];
 
-const KindergartenHub: React.FC<KindergartenHubProps> = ({ currentWeek, syllabus, onToggle }) => {
-  const [activeTab, setActiveTab] = useState<KgTab>('overview');
+const KindergartenHub: React.FC<KindergartenHubProps> = ({ currentWeek, syllabus, onToggle, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<KgTab>(
+    KG_TABS.includes(initialTab as KgTab) ? initialTab as KgTab : 'overview'
+  );
   const currentWeekData = syllabus.find((week) => week.week === currentWeek);
 
   const nextProject = useMemo(() => (

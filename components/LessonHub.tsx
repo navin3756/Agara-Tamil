@@ -17,12 +17,16 @@ interface LessonHubProps {
   currentWeek: number;
   syllabus: WeeklySyllabus[];
   onToggle: (weekId: number, taskId: string) => void;
+  initialTab?: string;
 }
 
 type Tab = 'plan' | 'grammar' | 'worksheets' | 'homework' | 'kural' | 'phonetics' | 'projects' | 'dictation' | 'reading' | 'conversation' | 'vocab';
+const LESSON_TABS: Tab[] = ['plan', 'grammar', 'worksheets', 'homework', 'kural', 'phonetics', 'projects', 'dictation', 'reading', 'conversation', 'vocab'];
 
-const LessonHub: React.FC<LessonHubProps> = ({ currentWeek, syllabus, onToggle }) => {
-  const [activeTab, setActiveTab] = useState<Tab>('plan');
+const LessonHub: React.FC<LessonHubProps> = ({ currentWeek, syllabus, onToggle, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<Tab>(
+    LESSON_TABS.includes(initialTab as Tab) ? initialTab as Tab : 'plan'
+  );
   const [activeWorksheetId, setActiveWorksheetId] = useState<string | null>(null);
 
   const currentWeekData = syllabus.find(s => s.week === currentWeek);
@@ -162,7 +166,7 @@ const LessonHub: React.FC<LessonHubProps> = ({ currentWeek, syllabus, onToggle }
       case 'homework':
         return <div className="animate-fade-in"><SentenceBuilder key={currentWeek} week={currentWeek} vocab={currentWeekData.grammarWords} /></div>;
       case 'kural':
-        return <div className="animate-fade-in"><KuralPlayer key={currentWeek} kuralId={currentWeekData.kuralId} week={currentWeek} /></div>;
+        return <div className="animate-fade-in"><KuralPlayer key={currentWeek} kuralId={currentWeekData.kuralId} /></div>;
       case 'phonetics':
         return <div className="animate-fade-in"><PhoneticsGuide key={currentWeek} focusId={currentWeekData.phoneticFocus} /></div>;
       case 'projects':

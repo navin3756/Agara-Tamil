@@ -1,0 +1,6 @@
+Initial Android release of Agara Tamil Learning.
+
+- Added Kindergarten handbook lessons under the KG section.
+- Added Tamil letter, sound, home practice, speaking, and project activities.
+- Included grammar, sentence, vocabulary, reading, dictation, and phonetics practice.
+- Runs without Gemini or paid AI API keys.

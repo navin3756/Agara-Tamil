@@ -34,7 +34,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onReadArticle }) => 
           
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600 mb-10">
             Struggling with homework? Confused by Grammar? <br/>
-            Join thousands of kids using our AI-powered Sentence Lab, Phonetics Dojo, and Kural Studio to ace their Tamil exams!
+            Join kids using our smart Sentence Lab, Phonetics Dojo, and Kural Studio to build Tamil confidence!
           </p>
 
           {/* Grade Selector */}
@@ -97,7 +97,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onReadArticle }) => 
                 </dt>
                 <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600">
                   <p className="flex-auto mt-2">
-                    Drag and drop words to build sentences. Our AI teacher fixes your grammar instantly and tells you why!
+                    Drag and drop words to build sentences. Agara checks your grammar and explains why it works.
                   </p>
                 </dd>
               </div>
@@ -208,7 +208,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onReadArticle }) => 
              <div className="text-white font-bold text-2xl mb-4">Agara Tamil</div>
              <p className="text-slate-400 text-sm">
                  Made with ❤️ for the Tamil Community. <br/>
-                 Not affiliated efficiently with International Tamil Academy, but designed to support its curriculum.
+                 Not affiliated officially with International Tamil Academy, but designed to support its curriculum.
              </p>
          </div>
       </footer>
