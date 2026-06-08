@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import LessonHub from './components/LessonHub';
+import KindergartenHub from './components/KindergartenHub';
 import LandingPage from './components/LandingPage';
 import ViralArticle from './components/ViralArticle';
 import DailyReminder from './components/DailyReminder';
 import { getWeeklySyllabus } from './constants';
+import { getKindergartenSyllabus } from './data/kindergartenHandbook';
 import { useAuth } from './components/authContext';
 
 const App: React.FC = () => {
@@ -11,9 +13,10 @@ const App: React.FC = () => {
   const [view, setView] = useState<'landing' | 'app' | 'article'>('landing');
   
   // App State
-  const [gradeLevel, setGradeLevel] = useState<string>("4");
+  const [gradeLevel, setGradeLevel] = useState<string>('4');
   const [currentWeek, setCurrentWeek] = useState<number>(22);
   const [syllabus, setSyllabus] = useState(getWeeklySyllabus());
+  const [kindergartenSyllabus, setKindergartenSyllabus] = useState(getKindergartenSyllabus());
   
   const { user, signIn, signOut, authAvailable } = useAuth();
 
@@ -30,8 +33,22 @@ const App: React.FC = () => {
     ));
   };
 
+  const toggleKindergartenTask = (weekId: number, taskId: string) => {
+    setKindergartenSyllabus(prev => prev.map(week => 
+      week.week === weekId 
+        ? {
+            ...week,
+            tasks: week.tasks.map(task => 
+              task.id === taskId ? { ...task, completed: !task.completed } : task
+            )
+          }
+        : week
+    ));
+  };
+
   const handleStart = (selectedGrade: string) => {
     setGradeLevel(selectedGrade);
+    setCurrentWeek(selectedGrade === 'KG' ? 1 : 22);
     setView('app');
     window.scrollTo(0, 0);
   };
@@ -119,11 +136,19 @@ const App: React.FC = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <LessonHub 
-          currentWeek={currentWeek} 
-          syllabus={syllabus} 
-          onToggle={toggleTask} 
-        />
+        {gradeLevel === 'KG' ? (
+          <KindergartenHub
+            currentWeek={currentWeek}
+            syllabus={kindergartenSyllabus}
+            onToggle={toggleKindergartenTask}
+          />
+        ) : (
+          <LessonHub 
+            currentWeek={currentWeek} 
+            syllabus={syllabus} 
+            onToggle={toggleTask} 
+          />
+        )}
       </main>
       
       <DailyReminder />
