@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { combineWordAndCase, getTamilCaseSuffix } from '../utils/tamilGrammar';
 import { Noun } from '../types';
 
@@ -7,26 +7,55 @@ interface GrammarMixerProps {
 }
 
 const CASES = [
-  { label: 'முதல் (1st: Subject)', value: 'first' },
-  { label: 'இரண்டாம் (2nd: ஐ)', value: 'ai' },
-  { label: 'மூன்றாம் (3rd: ஆல்)', value: 'aal' },
-  { label: 'மூன்றாம் (3rd: ஓடு, உடன்)', value: 'odu' },
-  { label: 'நான்காம் (4th: கு)', value: 'ku' },
-  { label: 'ஐந்தாம் (5th: இன், இருந்து)', value: 'in' },
-  { label: 'ஆறாம் (6th: அது, உடைய)', value: 'adhu' },
-  { label: 'ஏழாம் (7th: இல், இடம்)', value: 'il' },
-  { label: 'எட்டாம் (8th: விளி)', value: 'vili' },
-];
+  { label: 'முதல் (1st: Subject)', value: 'first', challengeSuffix: 'பெயர்' },
+  { label: 'இரண்டாம் (2nd: ஐ)', value: 'ai', challengeSuffix: 'ஐ' },
+  { label: 'மூன்றாம் (3rd: ஆல்)', value: 'aal', challengeSuffix: 'ஆல்' },
+  { label: 'மூன்றாம் (3rd: ஓடு, உடன்)', value: 'odu', challengeSuffix: 'ஓடு' },
+  { label: 'நான்காம் (4th: கு)', value: 'ku', challengeSuffix: 'கு' },
+  { label: 'ஐந்தாம் (5th: இன், இருந்து)', value: 'in', challengeSuffix: 'இன்' },
+  { label: 'ஆறாம் (6th: அது, உடைய)', value: 'adhu', challengeSuffix: 'அது' },
+  { label: 'ஏழாம் (7th: இல், இடம்)', value: 'il', challengeSuffix: 'இல்' },
+  { label: 'எட்டாம் (8th: விளி)', value: 'vili', challengeSuffix: 'ஏ' },
+] as const;
+
+type GrammarCase = (typeof CASES)[number];
+type Challenge = { noun: Noun; case: GrammarCase };
+
+const shuffle = <T,>(items: T[]): T[] => {
+  const next = [...items];
+  for (let i = next.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+};
+
+const buildChallengeOptions = (noun: Noun, selectedCase: GrammarCase): string[] => {
+  const correct = combineWordAndCase(noun.value, selectedCase.value);
+  const options = new Set<string>([correct]);
+  const alternateCases = shuffle(CASES.filter(c => c.value !== 'first' && c.value !== selectedCase.value));
+
+  for (const alternateCase of alternateCases) {
+    options.add(combineWordAndCase(noun.value, alternateCase.value));
+    if (options.size >= 4) break;
+  }
+
+  if (options.size < 4) {
+    options.add(noun.value);
+  }
+
+  return shuffle(Array.from(options).slice(0, 4));
+};
 
 const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
   const [mode, setMode] = useState<'practice' | 'challenge'>('practice');
-  
+
   // Practice Mode State
   const [selectedNoun, setSelectedNoun] = useState<string>('');
   const [selectedCase, setSelectedCase] = useState<string>('');
 
   // Practice Mode: Auto-calculate result
-  const result = React.useMemo(() => {
+  const result = useMemo(() => {
     if (selectedNoun && selectedCase) {
       return combineWordAndCase(selectedNoun, selectedCase);
     }
@@ -34,7 +63,8 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
   }, [selectedNoun, selectedCase]);
 
   // Challenge Mode State
-  const [challenge, setChallenge] = useState<{noun: Noun, case: typeof CASES[0]} | null>(null);
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [challengeOptions, setChallengeOptions] = useState<string[]>([]);
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [challengeResult, setChallengeResult] = useState<'correct' | 'wrong' | null>(null);
   const [score, setScore] = useState(0);
@@ -42,18 +72,22 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
   // Challenge Mode: Start Game
   const startChallenge = () => {
       const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+      if (!randomNoun) return;
+
       // Avoid 'first' case for challenge as it's too easy (no change)
       const validCases = CASES.filter(c => c.value !== 'first');
       const randomCase = validCases[Math.floor(Math.random() * validCases.length)];
-      
+
       setChallenge({ noun: randomNoun, case: randomCase });
+      setChallengeOptions(buildChallengeOptions(randomNoun, randomCase));
       setUserAnswer('');
       setChallengeResult(null);
   };
 
   const checkAnswer = (selectedCombined: string) => {
       if (!challenge) return;
-      
+
+      setUserAnswer(selectedCombined);
       const correct = combineWordAndCase(challenge.noun.value, challenge.case.value);
       if (selectedCombined === correct) {
           setChallengeResult('correct');
@@ -61,19 +95,6 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
       } else {
           setChallengeResult('wrong');
       }
-  };
-
-  // Generate 3 wrong options + 1 correct option for Challenge
-  const getOptions = () => {
-      if (!challenge) return [];
-      const correct = combineWordAndCase(challenge.noun.value, challenge.case.value);
-      const wrong1 = challenge.noun.value + challenge.case.value; // Dumb concat
-      const wrong2 = combineWordAndCase(challenge.noun.value, CASES[(CASES.indexOf(challenge.case) + 1) % CASES.length].value);
-      const wrong3 = combineWordAndCase(challenge.noun.value, CASES[(CASES.indexOf(challenge.case) + 2) % CASES.length].value);
-      
-      const opts = Array.from(new Set([correct, wrong1, wrong2, wrong3])).slice(0, 4);
-      // Shuffle
-      return opts.sort(() => Math.random() - 0.5);
   };
 
   return (
@@ -87,13 +108,13 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
             </div>
          </div>
          <div className="flex bg-gray-100 p-1 rounded-lg">
-             <button 
+             <button
                 onClick={() => setMode('practice')}
                 className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${mode === 'practice' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500'}`}
              >
                  Practice
              </button>
-             <button 
+             <button
                 onClick={() => { setMode('challenge'); startChallenge(); }}
                 className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${mode === 'challenge' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500'}`}
              >
@@ -148,8 +169,8 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
             {/* Result Section */}
             <div className="md:col-span-2 mt-4 pt-6 border-t border-gray-100">
             <div className={`rounded-lg p-6 text-center transition-all ${
-                result 
-                ? 'bg-slate-50 border border-slate-200' 
+                result
+                ? 'bg-slate-50 border border-slate-200'
                 : 'bg-gray-50 border border-dashed border-gray-300'
             }`}>
                 {result ? (
@@ -187,14 +208,14 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
                         <div className="flex items-center justify-center gap-4 text-2xl font-bold text-slate-800">
                             <span className="bg-blue-50 px-4 py-2 rounded-lg border border-blue-100">{challenge.noun.value}</span>
                             <span className="text-gray-300">+</span>
-                            <span className="bg-green-50 px-4 py-2 rounded-lg border border-green-100">{challenge.case.label.split(' ')[0]}</span>
+                            <span className="bg-green-50 px-4 py-2 rounded-lg border border-green-100">{challenge.case.challengeSuffix}</span>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
-                        {getOptions().map((opt, i) => (
+                        {challengeOptions.map((opt) => (
                             <button
-                                key={i}
+                                key={opt}
                                 onClick={() => checkAnswer(opt)}
                                 disabled={!!challengeResult}
                                 className={`p-4 rounded-xl border-2 text-lg font-bold transition-all ${
@@ -219,7 +240,7 @@ const GrammarMixer: React.FC<GrammarMixerProps> = ({ nouns }) => {
                                     Oops! The correct answer is {combineWordAndCase(challenge.noun.value, challenge.case.value)}
                                 </div>
                             )}
-                            <button 
+                            <button
                                 onClick={startChallenge}
                                 className="bg-slate-800 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-700"
                             >

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { DICTATION_WORDS } from '../constants';
 import confetti from 'canvas-confetti';
-import { useAuth } from './AuthProvider';
+import { generateSimpleStory, generateTamilSpeech } from '../services/geminiService';
+import { useAuth } from './authContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../services/firebase';
 
@@ -118,16 +119,13 @@ const DailyVocabBuilder: React.FC = () => {
     if (!currentWord || isLoadingAudio) return;
     setIsLoadingAudio(true);
     try {
-      const response = await fetch('/api/gemini/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: currentWord.tamil })
-      });
-      const data = await response.json();
-      if (data.audio) {
-        const audioUrl = `data:audio/mp3;base64,${data.audio}`;
-        const audio = new Audio(audioUrl);
-        audio.play();
+      const audioBase64 = await generateTamilSpeech(currentWord.tamil);
+      if (audioBase64) {
+        const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+        const audioElement = new Audio(audioUrl);
+        audioElement.play();
+      } else {
+        throw new Error('No generated audio returned');
       }
     } catch (e) {
       console.error(e);
@@ -144,12 +142,7 @@ const DailyVocabBuilder: React.FC = () => {
     if (!currentWord || isLoadingSentence) return;
     setIsLoadingSentence(true);
     try {
-      const response = await fetch('/api/gemini/simple-story', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: `A single interesting sentence using the word "${currentWord.tamil}"` })
-      });
-      const data = await response.json();
+      const data = await generateSimpleStory(`A single interesting sentence using the word "${currentWord.tamil}"`);
       if (data.tamil) {
         setExampleSentence({ ta: data.tamil, en: data.english });
       }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { formTamilSentence } from '../services/geminiService';
 import { combineWordAndCase } from '../utils/tamilGrammar';
 import { Noun } from '../types';
